@@ -7,8 +7,10 @@ import plotly
 from base_nadzor.app import app
 from base_nadzor.read_db.read_db_func import ReadPandasRNS
 from base_nadzor.pdf_rsn_creator import pdf_razr_stroit
+from base_nadzor.pages import new_rsn_form
 
 PdfClass = pdf_razr_stroit.CreatePdfClass()
+
 
 ReadDBClass = ReadPandasRNS()
 df = ReadDBClass.read_db()
@@ -35,7 +37,10 @@ layout = html.Div([
                          # filter_action="native"
                          ),
     # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, id='table_rns'),
-    html.Div(id='div-out', children=[dcc.Download(id="download_rsn_pdf")]),
+    html.Div(id='rsn_list_null', children=[
+        dcc.Download(id="download_rsn_pdf"),
+        html.Div(id='rsn_list_null_new')
+    ]),
     html.Div(children=[
         dbc.Button("Добавить", color="success", className="me-1", id='add_rsn_btn'),
         dbc.Button("Распечатать", color="success", className="me-1", id='print_rsn_btn'),
@@ -64,7 +69,7 @@ def update_selected_row_color(active):
     Output('download_rsn_pdf', 'data'),
     Input('print_rsn_btn', 'n_clicks'),
     State('table_rns', 'derived_virtual_data'), prevent_initial_call=True,)
-def f(clicks, rows):
+def print(clicks, rows):
     if clicks is None:
         return ''
     else:
@@ -72,3 +77,14 @@ def f(clicks, rows):
         filename_result = PdfClass.make_razr_pdf()
         PdfClass.input_data = rows[0]
         return dcc.send_file(filename_result)
+
+
+@app.callback(
+    Output('rsn_list_null_new', 'children'),
+    Input('add_rsn_btn', 'n_clicks'),
+    prevent_initial_call=True,)
+def new_rsn(clicks):
+    if clicks is None:
+        return ''
+    else:
+        return new_rsn_form.layout
