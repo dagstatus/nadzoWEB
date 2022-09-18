@@ -165,23 +165,37 @@ class NewRsnFormClass:
     def make_rsn_new_form(self):
         big_form = []
         for idx, razdel in enumerate(self.razdels_tabs):
-            tmp_razdel = [dbc.Label(razdel)]
+
+            # dbc.Accordion(
+            #     [
+            #         dbc.AccordionItem(
+            #             [
+            #                 html.P("This is the content of the first section"),
+            #                 dbc.Button("Click here"),
+            #             ],
+            #             title="Item 1",
+            #         ),
+            #
+            tmp_razdel = []
+            # tmp_razdel.append(dbc.Label(razdel))
+            acc_tmp = []
 
             for label_x in self.labels:
                 if str(label_x).startswith(str(idx + 1)):
                     if label_x in self.non_input_labels:
-                        tmp_razdel.append(dbc.Row(label_x))
+                        tmp_razdel.append(dbc.Row(label_x, style={'font-weight': 'bold'}))
                     else:
                         tmp_razdel.append(
                             dbc.Row([
-                                dbc.Label(label_x, width=2),
+                                dbc.Label(label_x, width=10),
                                 dbc.Col(dbc.Input(id=str(label_x.split()[0][:-1]).replace('.', '_')),
                                         width=10),
                             ], class_name="mb-3")
                         )
 
                         self.state_inputs.append(str(label_x.split()[0][:-1]).replace('.', '_'))
-            big_form.append(html.Div(children=tmp_razdel))
+                        acc_tmp = dbc.AccordionItem(tmp_razdel, title=razdel)
+            big_form.append(acc_tmp)
 
         return big_form
 
@@ -190,7 +204,7 @@ NewRsnObj = NewRsnFormClass()
 WriteRSNObj = write_db.WriteDB()
 
 layout = html.Div(children=[
-    dbc.Form(NewRsnObj.make_rsn_new_form()),
+    dbc.Accordion(NewRsnObj.make_rsn_new_form(),start_collapsed=True,),
     dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db'),
     html.Div(id='new_rsn_result_null')
 ])
@@ -198,7 +212,7 @@ layout = html.Div(children=[
 
 @app.callback(
     Output('new_rsn_result_null', 'children'),
-    Input('print_rsn_btn', 'n_clicks'),
+    Input('save_new_rsn_to_db', 'n_clicks'),
     [State(key, 'value') for key in NewRsnObj.state_inputs],
     prevent_initial_call=True, )
 def f(clicks, *args):
@@ -206,8 +220,9 @@ def f(clicks, *args):
         return ''
     else:
         new_dict_to_db = {}
-        for key, idx in enumerate(NewRsnObj.state_inputs):
+        for idx, key in enumerate(NewRsnObj.state_inputs):
             new_key = str(key).replace('_', '.')
+            print(idx)
             new_dict_to_db[new_key] = args[idx]
 
         WriteRSNObj.add_rsn_to_db(new_dict_to_db)

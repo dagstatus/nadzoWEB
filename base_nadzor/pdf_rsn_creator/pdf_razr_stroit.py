@@ -287,25 +287,38 @@ class CreatePdfClass:
         # Effective page width, or just epw
         epw = self.pdf.w - 2 * self.pdf.l_margin
         th = self.pdf.font_size
-        cell_h = 1.5 * th
+        cell_h = 1.4 * th
         multicell_h = cell_h
 
         monocolumns = ('2.1', '2.2', '3.3', '4.3', '4.5', '4.6', '5.1', '5.2', '5.5', '6.2', '6.3', '6.4')
-
+        self.pdf.b_margin = self.pdf.b_margin - 10
         self.pdf.ln(0.5)
         for idx_row, row in enumerate(data_table):
             self.pdf.set_font('PTSerif', '', 10)
             align_one_colun = 'L'
             if len(row) < 2:
+
+                # Надо проверить следующая строка влазит на страницу или нет
+                check_y = self.pdf.y
+                ostatok_y = self.pdf.h - self.pdf.t_margin - self.pdf.b_margin - check_y
+                flag_new_page = False
+                for _datum in data_table[idx_row + 1]:
+                    if check_cell_h(_datum) > ostatok_y:
+                        flag_new_page = True
+                if flag_new_page:
+                    self.pdf.add_page()
+
                 if str(row[0]).startswith('Раздел'):
                     self.pdf.set_font('PTSerifBold', '', 12)
                     align_one_colun = 'C'
 
                     # TEMP !!!!!!#############
-                    if str(row[0]).startswith('Раздел 4'):
-                        self.pdf.add_page()
+                    # if str(row[0]).startswith('Раздел 4'):
+                    #     self.pdf.add_page()
 
                     if str(row[0]).startswith('Раздел 8'):
+                        continue
+                    if str(row[0]).startswith('Раздел 6'):
                         continue
 
                     #######################
@@ -319,7 +332,12 @@ class CreatePdfClass:
                 col_width = epw
 
                 self.pdf.multi_cell(col_width, cell_h, str(row[0]), border=1, align=align_one_colun)
-                # self.pdf.ln(cell_h)
+
+
+
+
+
+
             else:
                 self.pdf.set_font('PTSerif', '', 10)
                 for idx, datum in enumerate(row):
@@ -327,12 +345,16 @@ class CreatePdfClass:
                     if idx == 0:
                         if row[(idx + 1)]:
                             multicell_h_1 = check_cell_h(row[(idx + 1)])
-                            if multicell_h_1 == check_cell_h(datum):
+
+                            if multicell_h_1 <= check_cell_h(datum):
                                 multicell_h_1 = cell_h
+
+                            if multicell_h_1 > check_cell_h(datum):
+                                if check_cell_h(datum) > cell_h:
+                                    pass
+
                             if self.pdf.y + multicell_h_1 + self.pdf.b_margin * 2 > 297:
                                 self.pdf.add_page()
-
-
 
                             # Save top coordinate
                             top = self.pdf.y
@@ -341,10 +363,11 @@ class CreatePdfClass:
                             # Calculate x position of next cell
                             offset = self.pdf.x + col_width
 
-
-
+                            old_top = self.pdf.y
                             self.pdf.multi_cell(col_width, multicell_h_1, str(datum), border=1)
                             # print(multicell_h)
+
+                            new_h2 = self.pdf.y - old_top
 
                             if str_num == self.pdf.page_no():
                                 self.pdf.y = top
@@ -358,17 +381,27 @@ class CreatePdfClass:
                             multicell_h_2 = check_cell_h(row[(idx - 1)])
                             if multicell_h_2 == check_cell_h(datum):
                                 multicell_h_2 = cell_h
-                            # self.pdf.set_font('PTSerifBold', '', 10)
+
+                            if multicell_h_2 > check_cell_h(datum):
+                                if check_cell_h(datum) > cell_h:
+                                    while multicell_h_2 != check_cell_h(datum):
+                                        datum = datum + '\r\n'
+                                    multicell_h_2 = cell_h
+
                             self.pdf.multi_cell(col_width, multicell_h_2, str(datum), border=1)
                             # self.pdf.set_font('PTSerif', '', 10)
                             # pdf.ln(cell_h)
 
-        podpis_y = self.pdf.y + 12
+        ostatok_y = self.pdf.h - self.pdf.t_margin - self.pdf.b_margin - self.pdf.y
+        if ostatok_y < (cell_h * 5) + (th * 2) + 7:
+            self.pdf.add_page()
+
+        podpis_y = self.pdf.y + 6
         self.pdf.y = podpis_y
+        page_podpis = self.pdf.page_no()
         w_1_from_5 = (epw / 7) * 2
         w_2_from_5 = (epw / 7) * 3
         offset = self.pdf.x + w_2_from_5
-
 
         self.pdf.set_font('PTSerifBold', '', 12)
 
@@ -376,20 +409,21 @@ class CreatePdfClass:
 
         self.pdf.set_line_width(before_line_width + 0.2)
 
-        self.pdf.line(self.pdf.l_margin, podpis_y, 200, podpis_y)
+        # self.pdf.line(self.pdf.l_margin, podpis_y, 200, podpis_y)
 
-        self.pdf.multi_cell(w_2_from_5, cell_h * 4, 'Врио начальника Управления', border=1, align='C')
+        self.pdf.multi_cell(w_2_from_5, cell_h * 5, 'Врио начальника Управления', border=1, align='C')
 
         self.pdf.x = offset
         self.pdf.y = podpis_y
-        self.pdf.multi_cell(w_1_from_5, cell_h * 4, '', border=1)
+        self.pdf.multi_cell(w_1_from_5, cell_h * 5, '', border=1)
         self.pdf.x = offset + w_1_from_5
         self.pdf.y = podpis_y
-        self.pdf.multi_cell(w_1_from_5, cell_h * 4, 'Т.А-М.Галбацов', border=1, align='C')
+        self.pdf.multi_cell(w_1_from_5, cell_h * 5, 'Т.А-М.Галбацов', border=1, align='C')
 
         self.pdf.set_font('PTSerif', '', 10)
         podpis_y = self.pdf.y
-        self.pdf.multi_cell(w_2_from_5, cell_h, 'должность уполномоченного лица органа(организации), осуществляющего выдачу разрешения на строительство',
+        self.pdf.multi_cell(w_2_from_5, th,
+                            'должность уполномоченного лица органа(организации), осуществляющего выдачу разрешения на строительство',
                             border=1, align='C')
         h_new = self.pdf.y - podpis_y
         self.pdf.y = podpis_y

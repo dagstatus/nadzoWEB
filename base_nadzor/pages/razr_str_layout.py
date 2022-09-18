@@ -37,15 +37,16 @@ layout = html.Div([
                          # filter_action="native"
                          ),
     # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, id='table_rns'),
-    html.Div(id='rsn_list_null', children=[
-        dcc.Download(id="download_rsn_pdf"),
-        html.Div(id='rsn_list_null_new')
-    ]),
+
     html.Div(children=[
         dbc.Button("Добавить", color="success", className="me-1", id='add_rsn_btn'),
         dbc.Button("Распечатать", color="success", className="me-1", id='print_rsn_btn'),
         dbc.Button("Удалить", color="danger", className="me-1", id='delete_rsn_btn', style={'float': 'right'})
-    ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'})
+    ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
+    html.Div(id='rsn_list_null', children=[
+        dcc.Download(id="download_rsn_pdf"),
+        html.Div(id='rsn_list_null_new')
+    ]),
 ], className='container')
 
 
@@ -68,14 +69,16 @@ def update_selected_row_color(active):
 @app.callback(
     Output('download_rsn_pdf', 'data'),
     Input('print_rsn_btn', 'n_clicks'),
-    State('table_rns', 'derived_virtual_data'), prevent_initial_call=True,)
-def print(clicks, rows):
+    State('table_rns', 'derived_virtual_data'),
+    State('table_rns', 'selected_rows'), prevent_initial_call=True,)
+def print(clicks, rows, id_row):
     if clicks is None:
         return ''
     else:
-        PdfClass.input_data = rows[0]
+
+        PdfClass.input_data = rows[id_row[0]]
         filename_result = PdfClass.make_razr_pdf()
-        PdfClass.input_data = rows[0]
+        PdfClass.input_data = rows[id_row[0]]
         return dcc.send_file(filename_result)
 
 
