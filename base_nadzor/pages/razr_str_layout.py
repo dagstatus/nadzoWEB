@@ -45,7 +45,20 @@ layout = html.Div([
     ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
     html.Div(id='rsn_list_null', children=[
         dcc.Download(id="download_rsn_pdf"),
-        html.Div(id='rsn_list_null_new')
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
+                dbc.ModalBody(children=[
+                    html.Div(id='rsn_list_null_new')
+                ])
+
+            ],
+            id="modal-xl_rsn",
+            size="xl",
+            is_open=False,
+        ),
+
+
     ]),
 ], className='container')
 
@@ -83,11 +96,11 @@ def print(clicks, rows, id_row):
 
 
 @app.callback(
-    Output('rsn_list_null_new', 'children'),
+    Output('rsn_list_null_new', 'children'), Output('modal-xl_rsn', 'is_open'),
     Input('add_rsn_btn', 'n_clicks'),
     prevent_initial_call=True,)
 def new_rsn(clicks):
     if clicks is None:
-        return ''
+        return '', False
     else:
-        return new_rsn_form.layout
+        return new_rsn_form.layout, True
