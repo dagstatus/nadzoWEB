@@ -45,14 +45,19 @@ layout = html.Div([
     ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
     html.Div(id='rsn_list_null', children=[
         dcc.Download(id="download_rsn_pdf"),
-        dbc.Offcanvas(
-            html.Div(id='rsn_list_null_new'),
-            id="offcanvas_rsn",
-            title="Добавление разрешения",
-            backdrop='static',
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
+                dbc.ModalBody(children=[
+                    html.Div(id='rsn_list_null_new')
+                ])
+
+            ],
+            id="modal-xl_rsn",
+            size="xl",
             is_open=False,
-            style={'width': '800px'}
         ),
+
 
     ]),
 ], className='container')
@@ -91,11 +96,11 @@ def print(clicks, rows, id_row):
 
 
 @app.callback(
-    Output('rsn_list_null_new', 'children'), Output("offcanvas_rsn", "is_open"),
-    Input('add_rsn_btn', 'n_clicks'), State("offcanvas_rsn", "is_open"),
+    Output('rsn_list_null_new', 'children'), Output('modal-xl_rsn', 'is_open'),
+    Input('add_rsn_btn', 'n_clicks'),
     prevent_initial_call=True,)
-def new_rsn(clicks, is_open_flag):
+def new_rsn(clicks):
     if clicks is None:
-        return '', is_open_flag
+        return '', False
     else:
-        return new_rsn_form.layout, not is_open_flag
+        return new_rsn_form.layout, True

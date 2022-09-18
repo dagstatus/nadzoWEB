@@ -165,21 +165,8 @@ class NewRsnFormClass:
     def make_rsn_new_form(self):
         big_form = []
         for idx, razdel in enumerate(self.razdels_tabs):
-
-            # dbc.Accordion(
-            #     [
-            #         dbc.AccordionItem(
-            #             [
-            #                 html.P("This is the content of the first section"),
-            #                 dbc.Button("Click here"),
-            #             ],
-            #             title="Item 1",
-            #         ),
-            #
             tmp_razdel = []
-            # tmp_razdel.append(dbc.Label(razdel))
             acc_tmp = []
-
             for label_x in self.labels:
                 if str(label_x).startswith(str(idx + 1)):
                     if label_x in self.non_input_labels:
@@ -204,8 +191,8 @@ NewRsnObj = NewRsnFormClass()
 WriteRSNObj = write_db.WriteDB()
 
 layout = html.Div(children=[
-    dbc.Accordion(NewRsnObj.make_rsn_new_form(),start_collapsed=True,),
-    dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db'),
+    dbc.Accordion(NewRsnObj.make_rsn_new_form(), start_collapsed=True,),
+    dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db', style={'margin': '10px'}),
     html.Div(id='new_rsn_result_null')
 ])
 

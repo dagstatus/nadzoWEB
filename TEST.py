@@ -1,4 +1,3 @@
-def ttt(*args):
-    print(args[0])
+aaa = [1, 2]
 
-ttt(1,1, '2222')
+aaa.remove(int('1'))

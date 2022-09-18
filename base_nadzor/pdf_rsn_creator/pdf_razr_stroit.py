@@ -95,16 +95,6 @@ class CreatePdfClass:
 
         self.pdf.set_xy(0.0, start_head_text + 93.5)
 
-        # # INPUT DATA
-        # INPUT_DATA = {
-        #     '1.1': 'Test',
-        #     '1.2': 'Test',
-        #     '2.1.1': 'Unusov gdfgdfgd df gdf gdf gdf gdfgfdgfg gdfgdfgd df gdf gdf gdf gdfgfdgfg gdfgdfgd df gdf gdf gdf gdfgfdgfg gdfgdfgd df gdf gdf gdf gdfgfdgfg  ',
-        #     '2.2.1': 'OOO ALPHA',
-        #     '3.2': 'utfuisdfsdfds',
-        #     '3.3.7': 44363645
-        # }
-
         data_table = [
             ['Раздел 1. Реквизиты разрешения на строительство'],
             ['1.1. Дата разрешения на строительство :', INPUT_DATA.get('1.1')],
@@ -202,7 +192,7 @@ class CreatePdfClass:
                 '5.5.4. Наименование уполномоченного органа, принявшего решение об утверждении типового '
                 'архитектурного решения:', INPUT_DATA.get("5.5.4")],
             ['Раздел 6. Информация о результатах экспертизы проектной документации и государственной экологической экспертизы'],
-            ['6.1. Сведения об экспертизе проектной документации', INPUT_DATA.get("6.1")],
+            ['6.1. Сведения об экспертизе проектной документации'],
             ['6.1.1.1. Дата утверждения:', INPUT_DATA.get("6.1.1.1")],
             ['6.1.1.2. Номер:', INPUT_DATA.get("6.1.1.2")],
             [
@@ -267,6 +257,25 @@ class CreatePdfClass:
 
         ]
 
+        # Метод смотрит каких разделов нету во вводе
+        def make_no_need_razdels(input_data: dict):
+            res = []
+            need_razdels = [1, 2, 3, 4, 5, 6, 7, 8]
+            include_razdels = []
+            for key, value in input_data.items():
+                if int(str(key[0])) in need_razdels:
+                    if value is not None:
+                        include_razdels.append(int(str(key[0])))
+
+            for _r in need_razdels:
+                if _r in include_razdels:
+                    continue
+                else:
+                    res.append(_r)
+            return res
+
+        not_need_radels_list = make_no_need_razdels(INPUT_DATA)
+
 
         def check_cell_h(text_cell):
             pdf_test = PDF(orientation='P', unit='mm', format='A4')  # pdf object
@@ -290,7 +299,7 @@ class CreatePdfClass:
         cell_h = 1.4 * th
         multicell_h = cell_h
 
-        monocolumns = ('2.1', '2.2', '3.3', '4.3', '4.5', '4.6', '5.1', '5.2', '5.5', '6.2', '6.3', '6.4')
+        monocolumns = ('2.1', '2.2', '3.3', '4.3', '4.5', '4.6', '5.1', '5.2', '5.5','6.1', '6.2', '6.3', '6.4')
         self.pdf.b_margin = self.pdf.b_margin - 10
         self.pdf.ln(0.5)
         for idx_row, row in enumerate(data_table):
@@ -316,10 +325,18 @@ class CreatePdfClass:
                     # if str(row[0]).startswith('Раздел 4'):
                     #     self.pdf.add_page()
 
-                    if str(row[0]).startswith('Раздел 8'):
+                    flag_not_need_razdel = False
+                    for _razdel_del in not_need_radels_list:
+                        if str(row[0]).startswith(f'Раздел {_razdel_del}'):
+                            flag_not_need_razdel = True
+
+                    if flag_not_need_razdel:
                         continue
-                    if str(row[0]).startswith('Раздел 6'):
-                        continue
+
+                    # if str(row[0]).startswith('Раздел 8'):
+                    #     continue
+                    # if str(row[0]).startswith('Раздел 6'):
+                    #     continue
 
                     #######################
 
