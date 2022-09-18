@@ -45,7 +45,15 @@ layout = html.Div([
     ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
     html.Div(id='rsn_list_null', children=[
         dcc.Download(id="download_rsn_pdf"),
-        html.Div(id='rsn_list_null_new')
+        dbc.Offcanvas(
+            html.Div(id='rsn_list_null_new'),
+            id="offcanvas_rsn",
+            title="Добавление разрешения",
+            backdrop='static',
+            is_open=False,
+            style={'width': '800px'}
+        ),
+
     ]),
 ], className='container')
 
@@ -83,11 +91,11 @@ def print(clicks, rows, id_row):
 
 
 @app.callback(
-    Output('rsn_list_null_new', 'children'),
-    Input('add_rsn_btn', 'n_clicks'),
+    Output('rsn_list_null_new', 'children'), Output("offcanvas_rsn", "is_open"),
+    Input('add_rsn_btn', 'n_clicks'), State("offcanvas_rsn", "is_open"),
     prevent_initial_call=True,)
-def new_rsn(clicks):
+def new_rsn(clicks, is_open_flag):
     if clicks is None:
-        return ''
+        return '', is_open_flag
     else:
-        return new_rsn_form.layout
+        return new_rsn_form.layout, not is_open_flag
