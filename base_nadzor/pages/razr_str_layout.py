@@ -5,15 +5,18 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly
 from base_nadzor.app import app
-from base_nadzor.read_db.read_db_func import ReadPandasRNS
+from base_nadzor.read_db.read_db_func import ReadPandasRNS, SqlDB
 from base_nadzor.pdf_rsn_creator import pdf_razr_stroit
 from base_nadzor.pages import new_rsn_form
 
 PdfClass = pdf_razr_stroit.CreatePdfClass()
 
 
-ReadDBClass = ReadPandasRNS()
-df = ReadDBClass.read_db()
+# ReadDBClass = ReadPandasRNS()
+# df = ReadDBClass.read_db()
+
+ReadDBSQL = SqlDB()
+df = ReadDBSQL.read_rns_db()
 
 style_data_conditional = [
     {
@@ -41,6 +44,7 @@ layout = html.Div([
     html.Div(children=[
         dbc.Button("Добавить", color="success", className="me-1", id='add_rsn_btn'),
         dbc.Button("Распечатать", color="success", className="me-1", id='print_rsn_btn'),
+        dbc.Button("Изменить", color="success", className="me-1", id='edit_rsn_btn'),
         dbc.Button("Удалить", color="danger", className="me-1", id='delete_rsn_btn', style={'float': 'right'})
     ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
     html.Div(id='rsn_list_null', children=[
@@ -54,6 +58,18 @@ layout = html.Div([
 
             ],
             id="modal-xl_rsn",
+            size="xl",
+            is_open=False,
+        ),
+        dbc.Modal(
+            [
+                dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
+                dbc.ModalBody(children=[
+                    html.Div(id='rsn_list_null_edit')
+                ])
+
+            ],
+            id="modal-xl_rsn_edit",
             size="xl",
             is_open=False,
         ),
@@ -93,6 +109,21 @@ def print(clicks, rows, id_row):
         filename_result = PdfClass.make_razr_pdf()
         PdfClass.input_data = rows[id_row[0]]
         return dcc.send_file(filename_result)
+
+
+@app.callback(
+    Output('rsn_list_null_edit', 'children'), Output('modal-xl_rsn_edit', 'is_open'),
+    Input('edit_rsn_btn', 'n_clicks'),
+    State('table_rns', 'derived_virtual_data'),
+    State('table_rns', 'selected_rows'), prevent_initial_call=True,)
+def print(clicks, rows, id_row):
+    if clicks is None:
+        return '', False
+    else:
+        # NewRsnObj = NewRsnFormClass(edit_flag=False, edit_dict={})
+        # WriteRSNObj = write_db.WriteDB()
+        # new_rsn_form.NewRsnObj = new_rsn_form.NewRsnFormClass(edit_flag=True, edit_dict=rows[id_row[0]])
+        return new_rsn_form.edit_layout_func(edit_flag=True, edit_dict=rows[id_row[0]]), True
 
 
 @app.callback(

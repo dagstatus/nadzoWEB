@@ -8,7 +8,7 @@ from base_nadzor.read_db import write_db
 
 
 class NewRsnFormClass:
-    def __init__(self):
+    def __init__(self, edit_flag=False, edit_dict={}):
         self.result = None
         self.razdels_tabs = ['Раздел 1', 'Раздел 2', 'Раздел 3', 'Раздел 4', 'Раздел 5', 'Раздел 6',
                              'Раздел 7', 'Раздел 8']
@@ -162,6 +162,8 @@ class NewRsnFormClass:
 
         self.state_inputs = []
 
+        self.edit_dict = edit_dict
+
     def make_rsn_new_form(self):
         big_form = []
         for idx, razdel in enumerate(self.razdels_tabs):
@@ -172,13 +174,24 @@ class NewRsnFormClass:
                     if label_x in self.non_input_labels:
                         tmp_razdel.append(dbc.Row(label_x, style={'font-weight': 'bold'}))
                     else:
+
+                        ############# temp ##############
+                        if 'X' in label_x:
+                            label_x = label_x.replace('X', '1')
+
                         tmp_razdel.append(
                             dbc.Row([
                                 dbc.Label(label_x, width=10),
-                                dbc.Col(dbc.Input(id=str(label_x.split()[0][:-1]).replace('.', '_')),
+                                dbc.Col(dbc.Input(id=str(label_x.split()[0][:-1]).replace('.', '_'),
+                                                  value=self.edit_dict.get(
+                                                      str(label_x.split()[0][:-1]), ''
+                                                  )),
                                         width=10),
                             ], class_name="mb-3")
                         )
+
+                        print(str(label_x.split()[0][:-1]))
+                        print(self.edit_dict.get(str(label_x.split()[0][:-1]), ''))
 
                         self.state_inputs.append(str(label_x.split()[0][:-1]).replace('.', '_'))
                         acc_tmp = dbc.AccordionItem(tmp_razdel, title=razdel)
@@ -187,7 +200,7 @@ class NewRsnFormClass:
         return big_form
 
 
-NewRsnObj = NewRsnFormClass()
+NewRsnObj = NewRsnFormClass(edit_flag=False, edit_dict={})
 WriteRSNObj = write_db.WriteDB()
 
 layout = html.Div(children=[
@@ -195,6 +208,16 @@ layout = html.Div(children=[
     dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db', style={'margin': '10px'}),
     html.Div(id='new_rsn_result_null')
 ])
+
+
+def edit_layout_func(edit_flag=False, edit_dict={}):
+    EditRsnObj = NewRsnFormClass(edit_flag=edit_flag, edit_dict=edit_dict)
+    layout_edit = html.Div(children=[
+        dbc.Accordion(EditRsnObj.make_rsn_new_form(), start_collapsed=True,),
+        dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db', style={'margin': '10px'}),
+        html.Div(id='new_rsn_result_null')
+    ])
+    return layout_edit
 
 
 @app.callback(

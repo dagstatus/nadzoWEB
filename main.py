@@ -5,13 +5,14 @@ from dash import html
 import dash_bootstrap_components as dbc
 import plotly
 from dash.dependencies import Input, Output, State
-from base_nadzor.pages import main_page, razr_str_layout, settings_layout
+from base_nadzor.pages import main_page, razr_str_layout, settings_layout, vvod_layout
 from base_nadzor.app import app
 
 dropdown = dbc.DropdownMenu(
     children=[
         dbc.DropdownMenuItem("Главная", href="/home"),
         dbc.DropdownMenuItem("Разрешения на строительство", href="/rns"),
+        dbc.DropdownMenuItem("Разрешения на ввод", href="/rnv"),
         dbc.DropdownMenuItem("Настройки", href="/settings"),
     ],
     nav=True,
@@ -102,6 +103,8 @@ def display_page(pathname):
         return razr_str_layout.layout
     elif pathname == '/settings':
         return settings_layout.layout
+    elif pathname == '/rnv':
+        return vvod_layout.layout
 
 
 if __name__ == '__main__':
