@@ -263,9 +263,10 @@ class CreatePdfClass:
             need_razdels = [1, 2, 3, 4, 5, 6, 7, 8]
             include_razdels = []
             for key, value in input_data.items():
-                if int(str(key[0])) in need_razdels:
-                    if value is not None:
-                        include_razdels.append(int(str(key[0])))
+                if str(key[0])[0].isdigit():
+                    if int(str(key[0])) in need_razdels:
+                        if value is not None:
+                            include_razdels.append(int(str(key[0])))
 
             for _r in need_razdels:
                 if _r in include_razdels:

@@ -6,10 +6,14 @@ class SqlDB:
         self.con = sqlite3.connect('base_nadzor/read_db/NADZO_DB.db')
 
     def read_rns_db(self):
-        return pd.read_sql_query('select * from RSN', con=self.con)
+        df = pd.read_sql_query('select * from RSN', con=self.con)
+        self.con.close()
+        return df
 
     def read_rnv_db(self):
-        return pd.read_sql_query('select * from RNV', con=self.con)
+        df = pd.read_sql_query('select * from RNV', con=self.con)
+        self.con.close()
+        return df
 
 
 

@@ -1,17 +1,23 @@
 import dash
 import dash_auth
+import pandas as pd
 from dash import dcc, html, dash_table
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import plotly
 from base_nadzor.app import app
-from base_nadzor.read_db.read_db_func import ReadpandasRNV, SqlDB
+# from base_nadzor.read_db.read_db_func import ReadpandasRNV, SqlDB
 from base_nadzor.pdf_rnv_creator import pdf_rnv_make_file
+from base_nadzor.read_db import write_db
 
 PdfClass = pdf_rnv_make_file.CreatePdfClass()
 
-ReadDBClass = SqlDB()
-df = ReadDBClass.read_rnv_db()
+# ReadDBClass = write_db.WriteDB()
+# df = ReadDBClass.read_rnv_db()
+# ReadDBClass.con.close()
+
+df = pd.DataFrame()
+
 
 style_data_conditional = [
     {
