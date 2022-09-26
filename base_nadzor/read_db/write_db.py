@@ -22,13 +22,26 @@ class WriteDB:
 
 
     def edit_rns_sql(self, dict_to_edit: dict):
-        uid_father = dict_to_edit.get('UID')
+        uid_father = dict_to_edit.get('uid')
         version = dict_to_edit.get('version')
-        show_false_father_script = """UPDATE RSN SET show_flag = 1 WHERE uid = 'd754c8e5-5a32-46eb-8d74-1e111ae196cc'"""
+        show_false_father_script = f"""UPDATE RSN SET show_flag = 1 WHERE uid = '{uid_father}'"""
+
+        dict_to_edit['uid'] = str(uuid.uuid4())
+        dict_to_edit['date_write_to_db'] = datetime.datetime.now()
+        dict_to_edit['show_flag'] = 1
+        dict_to_edit['version'] = int(version) + 1
 
         cursor = self.con.cursor()
+        cursor.execute(show_false_father_script)
+        self.con.commit()
+        new_df = pd.DataFrame({key: [value] for key, value in dict_to_edit.items()})
 
-
+        try:
+            new_df.to_sql('RSN', con=self.con, if_exists='append', index=False)
+        except:
+            df = pd.read_sql_query('select * from RSN', con=self.con)
+            df_2 = pd.concat([df, new_df])
+            df_2.to_sql(name='RSN', con=self.con, if_exists='replace', index=False)
 
 
     def add_rsn_to_db(self, dict_to_add: dict):
