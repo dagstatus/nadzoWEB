@@ -11,6 +11,20 @@ class WriteDB:
         self.engine = sqlalchemy.create_engine('sqlite:///base_nadzor/read_db/NADZO_DB.db')
 
 
+    def del_rsn(self, dict_delete_row: dict):
+        uid = dict_delete_row.get('uid', None)
+        if uid:
+            # print(uid)
+
+            sql_query = f"""DELETE FROM RSN WHERE uid = '{uid}'"""
+            conn = self.engine.connect(close_with_result=True)
+            result = conn.execute(sql_query)
+            result.close()
+
+
+
+
+
     def add_rsn_to_sql(self, dict_to_add: dict):
         dict_to_add['uid'] = str(uuid.uuid4())
         dict_to_add['date_write_to_db'] = datetime.datetime.now()

@@ -31,58 +31,90 @@ style_data_conditional = [
     },
 ]
 
-layout = html.Div([
-    html.H4('Разрешения на строительство', className="text-center", style={'margin': '10px'}),
-    dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rns',
-                         style_data_conditional=style_data_conditional,
-                         row_selectable='single',
-                         # filter_action="native"
-                         ),
-    # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, id='table_rns'),
 
-    html.Div(children=[
-        dbc.Button("Добавить", color="success", className="me-1", id='add_rsn_btn'),
-        dbc.Button("Распечатать", color="success", className="me-1", id='print_rsn_btn'),
-        dbc.Button("Изменить", color="success", className="me-1", id='edit_rsn_btn'),
-        dbc.Button("Удалить", color="danger", className="me-1", id='delete_rsn_btn', style={'float': 'right'})
-    ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
-    html.Div(id='rsn_list_null', children=[
-        dcc.Download(id="download_rsn_pdf"),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
-                dbc.ModalBody(children=[
-                    html.Div(id='rsn_list_null_new')
-                ])
+def get_df_rns():
+    df = ReadDBSQL.read_rns_db()
+    return df
 
-            ],
-            id="modal-xl_rsn",
-            size="xl",
-            is_open=False,
-        ),
-        dbc.Modal(
-            [
-                dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
-                dbc.ModalBody(children=[
-                    html.Div(id='rsn_list_null_edit')
-                ])
+def make_rns_table():
+    table = dash_table.DataTable(get_df_rns().to_dict('records'), [{"name": i, "id": i} for i in get_df_rns().columns],
+                                 id='table_rns',
+                                 style_data_conditional=style_data_conditional,
+                                 row_selectable='single',
+                                 # filter_action="native"
+                                 )
+    return table
 
-            ],
-            id="modal-xl_rsn_edit",
-            size="xl",
-            is_open=False,
-        ),
+def make_layout_rns():
+    layout = html.Div([
+        html.H4('Разрешения на строительство', className="text-center", style={'margin': '10px'}),
+        # dash_table.DataTable(get_df_rns().to_dict('records'), [{"name": i, "id": i} for i in get_df_rns().columns],
+        #                      id='table_rns',
+        #                      style_data_conditional=style_data_conditional,
+        #                      row_selectable='single',
+        #                      # filter_action="native"
+        #                      ),
 
-    ]),
-], className='container')
+        html.Div(
+            children=[make_rns_table()],
+            id='table_rns_div'
+        )
+        ,
+
+        html.Div(children=[
+            dbc.Button("Добавить", color="success", className="me-1", id='add_rsn_btn'),
+            dbc.Button("Распечатать", color="success", className="me-1", id='print_rsn_btn'),
+            dbc.Button("Изменить", color="success", className="me-1", id='edit_rsn_btn'),
+            dbc.Button("Удалить", color="danger", className="me-1", id='delete_rsn_btn', style={'float': 'right'})
+        ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
+        html.Div(id='rsn_list_null', children=[
+            dcc.Download(id="download_rsn_pdf"),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
+                    dbc.ModalBody(children=[
+                        html.Div(id='rsn_list_null_new')
+                    ])
+
+                ],
+                id="modal-xl_rsn",
+                size="xl",
+                is_open=False,
+            ),
+            dbc.Modal(
+                [
+                    dbc.ModalHeader(dbc.ModalTitle("Внесите данные и нажмите сохранить")),
+                    dbc.ModalBody(children=[
+                        html.Div(id='rsn_list_null_edit')
+                    ])
+
+                ],
+                id="modal-xl_rsn_edit",
+                size="xl",
+                is_open=False,
+            ),
+
+        ]),
+    ], className='container')
+
+    return layout
+
+
+layout = make_layout_rns()
 
 
 ########################### NEW FORM ###########################
 class NewRsnFormClass:
     def __init__(self, edit_flag=False, edit_dict={}):
         self.result = None
-        self.razdels_tabs = ['Раздел 1', 'Раздел 2', 'Раздел 3', 'Раздел 4', 'Раздел 5', 'Раздел 6',
-                             'Раздел 7', 'Раздел 8']
+        self.razdels_tabs = ['Раздел 1. Реквизиты разрешения на строительство',
+                             'Раздел 2. Информация о застройщике',
+                             'Раздел 3. Информация об объекте капитального строительства',
+                             'Раздел 4. Информация о земельном участке',
+                             'Раздел 5. Сведения о проектной документации, типовом архитектурном решении',
+                             'Раздел 6. Информация о результатах экспертизы проектной документации и государственной экологической экспертизы',
+                             'Раздел 7. Проектные характеристики объекта капитального строительства',
+                             'Раздел 8. Проектные характеристики линейного объекта']
         self.labels = [
             '1.1. Дата разрешения на строительство',
             '1.2. Номер разрешения на строительство',
@@ -296,12 +328,13 @@ layout_new_rsn = html.Div(children=[
 
 @app.callback(
     Output('new_rsn_result_null', 'children'),
+    Output('table_rns', 'data'),
     Input('save_new_rsn_to_db', 'n_clicks'),
     [State(key, 'value') for key in NewRsnObj.state_inputs],
     prevent_initial_call=True, )
 def save_rsn(clicks, *args):
     if clicks is None:
-        return ''
+        return '', ''
     else:
         new_dict_to_db = {}
         for idx, key in enumerate(NewRsnObj.state_inputs):
@@ -315,6 +348,9 @@ def save_rsn(clicks, *args):
             NewRsnObj.edit_flag = False
         else:
             WriteRSNObj.add_rsn_to_sql(new_dict_to_db)
+
+        data_to_table = get_df_rns().to_dict('records')
+        return '', data_to_table
 
 
 ########################### NEW FORM ###########################
@@ -377,6 +413,25 @@ def edit(clicks, rows, id_row):
         ])
 
         return layout_edit_rsn, True
+
+
+##### DELETE
+@app.callback(
+    Output('table_rns_div', 'children'),
+    Input('delete_rsn_btn', 'n_clicks'),
+    State('table_rns', 'derived_virtual_data'),
+    State('table_rns', 'selected_rows'), prevent_initial_call=True, )
+def edit(clicks, rows, id_row):
+    if clicks is None:
+        return ''
+    else:
+        WriteRSNObj.del_rsn(rows[id_row[0]])
+        return make_rns_table()
+
+
+
+
+
 
 
 @app.callback(

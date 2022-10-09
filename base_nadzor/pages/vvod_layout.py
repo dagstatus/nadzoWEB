@@ -15,8 +15,9 @@ PdfClass = pdf_rnv_make_file.CreatePdfClass()
 # ReadDBClass = write_db.WriteDB()
 # df = ReadDBClass.read_rnv_db()
 # ReadDBClass.con.close()
+ReadDBSQL = write_db.WriteDB()
+df = ReadDBSQL.read_rnv_db()
 
-df = pd.DataFrame()
 
 
 style_data_conditional = [

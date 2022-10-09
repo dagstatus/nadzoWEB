@@ -100,7 +100,7 @@ def display_page(pathname):
     if pathname == '/home':
         return main_page.layout
     elif pathname == '/rns':
-        return razr_str_layout.layout
+        return razr_str_layout.make_layout_rns()
     elif pathname == '/settings':
         return settings_layout.layout
     elif pathname == '/rnv':
@@ -108,4 +108,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
