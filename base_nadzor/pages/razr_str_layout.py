@@ -9,6 +9,7 @@ from base_nadzor.app import app
 from base_nadzor.pdf_rsn_creator import pdf_razr_stroit
 # from base_nadzor.pages import new_rsn_form
 from base_nadzor.read_db import write_db
+from base_nadzor.pages import edit_rsn_layout
 
 PdfClass = pdf_razr_stroit.CreatePdfClass()
 
@@ -398,21 +399,21 @@ def edit(clicks, rows, id_row):
     if clicks is None:
         return '', False
     else:
-        # NewRsnObj = NewRsnFormClass(edit_flag=False, edit_dict={})
-        # WriteRSNObj = write_db.WriteDB()
-        # new_rsn_form.NewRsnObj = new_rsn_form.NewRsnFormClass(edit_flag=True, edit_dict=rows[id_row[0]])
-        # edit_dict = df.loc[id_row[0]].to_dict()
-        NewRsnObj.edit_dict = df.loc[id_row[0]].to_dict()
-        NewRsnObj.edit_flag = True
+        lay = edit_rsn_layout.edit_rsn(rows[id_row[0]])
+        return lay, True
 
-        layout_edit_rsn = html.Div(children=[
-            dbc.Accordion(NewRsnObj.make_rsn_new_form(), start_collapsed=True, ),
-            dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db',
-                       style={'margin': '10px'}),
-            html.Div(id='new_rsn_result_null')
-        ])
 
-        return layout_edit_rsn, True
+        # NewRsnObj.edit_dict = df.loc[id_row[0]].to_dict()
+        # NewRsnObj.edit_flag = True
+        #
+        # layout_edit_rsn = html.Div(children=[
+        #     dbc.Accordion(NewRsnObj.make_rsn_new_form(), start_collapsed=True, ),
+        #     dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rsn_to_db',
+        #                style={'margin': '10px'}),
+        #     html.Div(id='new_rsn_result_null')
+        # ])
+        #
+        # return layout_edit_rsn, True
 
 
 ##### DELETE
