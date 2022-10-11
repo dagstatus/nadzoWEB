@@ -63,7 +63,7 @@ class WriteDB:
 
 
     def read_rns_db(self):
-        df = pd.read_sql('select * from RSN', con=self.engine)
+        df = pd.read_sql('select * from RSN order by "1.2"', con=self.engine)
 
         return df
 

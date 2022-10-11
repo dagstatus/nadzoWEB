@@ -234,11 +234,7 @@ def f(clicks, *args):
         new_dict_to_db = {}
         for idx, key in enumerate(NewRsnObj.state_inputs):
             new_key = str(key).replace('_', '.')
+            print(idx)
             new_dict_to_db[new_key] = args[idx]
 
-        if NewRsnObj.edit_flag:
-            WriteRSNObj.edit_rns_sql(dict_new=new_dict_to_db,
-                                     uid_father=NewRsnObj.edit_dict.get('uid'),
-                                     version=NewRsnObj.edit_dict.get('version'))
-        else:
-            WriteRSNObj.add_rsn_to_db(new_dict_to_db)
+        WriteRSNObj.add_rsn_to_db(new_dict_to_db)
