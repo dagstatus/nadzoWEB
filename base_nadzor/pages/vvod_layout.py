@@ -12,13 +12,8 @@ from base_nadzor.read_db import write_db
 
 PdfClass = pdf_rnv_make_file.CreatePdfClass()
 
-# ReadDBClass = write_db.WriteDB()
-# df = ReadDBClass.read_rnv_db()
-# ReadDBClass.con.close()
 ReadDBSQL = write_db.WriteDB()
 df = ReadDBSQL.read_rnv_db()
-
-
 
 style_data_conditional = [
     {
@@ -32,7 +27,6 @@ style_data_conditional = [
         "border": "1px solid blue",
     },
 ]
-
 
 layout = html.Div([
     html.H4('Разрешения на ввод', className="text-center", style={'margin': '10px'}),
@@ -63,7 +57,6 @@ layout = html.Div([
             is_open=False,
         ),
 
-
     ]),
 ], className='container')
 
@@ -84,11 +77,12 @@ def update_selected_row_color(active):
         )
     return style
 
+
 @app.callback(
     Output('download_rnv_pdf', 'data'),
     Input('print_rnv_btn', 'n_clicks'),
     State('table_rnv', 'derived_virtual_data'),
-    State('table_rnv', 'selected_rows'), prevent_initial_call=True,)
+    State('table_rnv', 'selected_rows'), prevent_initial_call=True, )
 def print(clicks, rows, id_row):
     if clicks is None:
         return ''
@@ -97,7 +91,6 @@ def print(clicks, rows, id_row):
         filename_result = PdfClass.make_razr_pdf()
         PdfClass.input_data = rows[id_row[0]]
         return dcc.send_file(filename_result)
-
 
 # @app.callback(
 #     Output('rnv_list_null_new', 'children'), Output('modal-xl_rnv', 'is_open'),
