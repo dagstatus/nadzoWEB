@@ -8,6 +8,7 @@ import plotly
 from base_nadzor.app import app
 # from base_nadzor.read_db.read_db_func import ReadpandasRNV, SqlDB
 from base_nadzor.pdf_rnv_creator import pdf_rnv_make_file
+from base_nadzor.pages import new_rnv_layout
 from base_nadzor.read_db import write_db
 
 PdfClass = pdf_rnv_make_file.CreatePdfClass()
@@ -38,7 +39,7 @@ layout = html.Div([
     # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, id='table_rns'),
 
     html.Div(children=[
-        dbc.Button("Добавить", color="success", className="me-1", id='add_rnv_btn'),
+        dbc.Button("Добавить", color="success", className="me-1", id='add_rnv_btn', href="/new_rnv"),
         dbc.Button("Распечатать", color="success", className="me-1", id='print_rnv_btn'),
         dbc.Button("Удалить", color="danger", className="me-1", id='delete_rsn_btn', style={'float': 'right'})
     ], style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
@@ -92,12 +93,12 @@ def print(clicks, rows, id_row):
         PdfClass.input_data = rows[id_row[0]]
         return dcc.send_file(filename_result)
 
+
 # @app.callback(
-#     Output('rnv_list_null_new', 'children'), Output('modal-xl_rnv', 'is_open'),
-#     Input('add_rnv_btn', 'n_clicks'),
-#     prevent_initial_call=True,)
+#     Output(Output('page-content', 'children'),
+#            Input('add_rnv_btn', 'n_clicks')))
 # def new_rsn(clicks):
 #     if clicks is None:
-#         return '', False
+#         return ''
 #     else:
-#         return new_rsn_form.layout, True
+#         return new_rnv_layout.layout

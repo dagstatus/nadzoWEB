@@ -5,7 +5,7 @@ from dash import html
 import dash_bootstrap_components as dbc
 import plotly
 from dash.dependencies import Input, Output, State
-from base_nadzor.pages import main_page, razr_str_layout, settings_layout, vvod_layout
+from base_nadzor.pages import main_page, razr_str_layout, settings_layout, vvod_layout, new_rnv_layout
 from base_nadzor.app import app
 
 dropdown = dbc.DropdownMenu(
@@ -105,6 +105,8 @@ def display_page(pathname):
         return settings_layout.layout
     elif pathname == '/rnv':
         return vvod_layout.layout
+    elif pathname == '/new_rnv':
+        return new_rnv_layout.layout
 
 
 if __name__ == '__main__':
