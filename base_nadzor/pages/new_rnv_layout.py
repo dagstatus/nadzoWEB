@@ -10,6 +10,7 @@ from base_nadzor.app import app
 from base_nadzor.pdf_rnv_creator import pdf_rnv_make_file
 from base_nadzor.read_db import write_db
 from base_nadzor.pages import vvod_text
+from dash.exceptions import PreventUpdate
 
 class MemoryRazdels:
     def __init__(self):
@@ -26,10 +27,19 @@ MemoryRazdelsObj = MemoryRazdels()
 WriteRSNObj = write_db.WriteDB()
 
 
-def make_layout_new_rnv(objects_6=1, objects_7=1):
+def make_layout_razdels_rnv(objects_6=1, objects_7=1):
     rnv_div = []
-    MemoryRazdelsObj.col_r6 = objects_6
-    MemoryRazdelsObj.col_r7 = objects_7
+
+    if MemoryRazdelsObj.col_r6 > objects_6:
+        objects_6 = MemoryRazdelsObj.col_r6
+    else:
+        MemoryRazdelsObj.col_r6 = objects_6
+
+    if MemoryRazdelsObj.col_r7 > objects_7:
+        objects_7 = MemoryRazdelsObj.col_r7
+    else:
+        MemoryRazdelsObj.col_r7 = objects_7
+
     for idx, razdel in enumerate(vvod_text.rnv_razdels):
         # num_object = 1
         obj_max = 1
@@ -76,32 +86,53 @@ def make_layout_new_rnv(objects_6=1, objects_7=1):
                             razdel_text = razdel + f'-------- Объект №{num_object} --------'
                         acc_tmp = dbc.AccordionItem(tmp_razdel, title=razdel_text)
             rnv_div.append(acc_tmp)
-
+        # MemoryRazdelsObj.name_id_rnv = list(set(MemoryRazdelsObj.name_id_rnv))
     return rnv_div
 
 
-layout = html.Div([
-    html.H4('Новое разрешения на ввод', className="text-center", style={'margin': '10px'}),
-    html.Div([
+def make_layout_rnv():
+    return html.Div([
+        html.H4('Новое разрешения на ввод', className="text-center", style={'margin': '10px'}),
         html.Div([
-            dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rnv_to_db',
-                       style={'margin': '10px'}, href="/rnv"),
-
             html.Div([
-                dbc.Button("Добавить объект в раздел 6", color="warning", className="me-1",
-                           id='button_rnv_add_obj_r6',
-                           style={'margin': '10px'}),
-                dbc.Button("Добавить объект в раздел 7", color="warning", className="me-1",
-                           id='button_rnv_add_obj_r7',
-                           style={'margin': '10px'}),
-            ], style={'float': 'right'}),
-        ]),
-        dbc.Accordion(make_layout_new_rnv(), start_collapsed=True, id='rnv_razdels_accord'),
-        html.Div(id='rnv_null_save_div')
+                dbc.Button("Сохранить", color="success", className="me-1", id='save_new_rnv_to_db',
+                           style={'margin': '10px'}, href="/rnv"),
+
+                html.Div([
+                    dbc.Button("СБРОСИТЬ", color="danger", className="me-1", id='drop_all_rnv_new',
+                               style={'margin': '10px'}),
+                    dbc.Button("Добавить объект в раздел 6", color="warning", className="me-1",
+                               id='button_rnv_add_obj_r6',
+                               style={'margin': '10px'}),
+                    dbc.Button("Добавить объект в раздел 7", color="warning", className="me-1",
+                               id='button_rnv_add_obj_r7',
+                               style={'margin': '10px'}),
+                ], style={'float': 'right'}),
+            ]),
+            html.Div([], id='rnv_null_update_div'),
+            dbc.Accordion(make_layout_razdels_rnv(), start_collapsed=True, id='rnv_razdels_accord'),
+            html.Div(id='rnv_null_save_div'),
+            html.Div(id='rnv_null_save_di2'),
+            html.Div(id='div_rnv_cache', style={'block': 'none'}),
+            dcc.Location(id='url_new_rnv_update', refresh=True),
+        ])
+
     ])
 
-])
 
+layout = make_layout_rnv()
+
+
+@app.callback(
+    Output('url_new_rnv_update', 'href'),
+    Input('drop_all_rnv_new', 'n_clicks'),
+    prevent_initial_call=True, )
+def save_rnv(clicks):
+    if clicks is None:
+        return ''
+    else:
+        MemoryRazdelsObj.__init__()
+        return '/new_rnv'
 
 @app.callback(
     Output('rnv_razdels_accord', 'children'),
@@ -113,12 +144,13 @@ def add_r6(clicks_r6, clicks_r7):
         if clicks_r7 is None:
             return ''
     else:
+        MemoryRazdelsObj.name_id_rnv = []
         if clicks_r6 != MemoryRazdelsObj.click_r6:
             MemoryRazdelsObj.click_r6 = clicks_r6
-            return make_layout_new_rnv(objects_6=MemoryRazdelsObj.col_r6 + 1, objects_7=MemoryRazdelsObj.col_r7)
+            return make_layout_razdels_rnv(objects_6=MemoryRazdelsObj.col_r6 + 1, objects_7=MemoryRazdelsObj.col_r7)
         elif clicks_r7 != MemoryRazdelsObj.click_r7:
             MemoryRazdelsObj.click_r7 = clicks_r7
-            return make_layout_new_rnv(objects_6=MemoryRazdelsObj.col_r6, objects_7=MemoryRazdelsObj.col_r7 + 1)
+            return make_layout_razdels_rnv(objects_6=MemoryRazdelsObj.col_r6, objects_7=MemoryRazdelsObj.col_r7 + 1)
 
 
 @app.callback(
@@ -130,7 +162,7 @@ def save_rnv(clicks, *args):
     if clicks is None:
         return ''
     else:
-        MemoryRazdelsObj = MemoryRazdels()
+
 
         new_dict_to_db = {}
         for idx, key in enumerate(MemoryRazdelsObj.name_id_rnv):
@@ -140,3 +172,11 @@ def save_rnv(clicks, *args):
         WriteRSNObj.add_rnv_to_sql(new_dict_to_db)
 
         return ''
+
+
+@app.callback(
+    Output('rnv_null_update_div', 'children'),
+    Input('url', 'href'))
+def display_page(href):
+    if href is None:
+        raise PreventUpdate
