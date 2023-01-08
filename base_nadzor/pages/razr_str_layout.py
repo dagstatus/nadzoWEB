@@ -565,7 +565,7 @@ for x in labels_edit:
     if 'X' in x:
         for num_x in range(1, 6):
             labels_edit.append(x.replace('X', str(num_x)))
-print(labels_edit)
+# print(labels_edit)
 
 
 @app.callback(
@@ -582,8 +582,8 @@ def edit_2(clicks, vers, *args):
         for idx, key in enumerate(args):
             new_key = str(key).split('_')[-1]
             new_dict_to_db[new_key] = args[idx]
-        print(vers)
-        print(new_dict_to_db)
+        # print(vers)
+        # print(new_dict_to_db)
         vers_old = int(vers) + 1
     return ''
 

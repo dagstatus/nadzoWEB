@@ -14,7 +14,17 @@ from base_nadzor.read_db import write_db
 PdfClass = pdf_rnv_make_file.CreatePdfClass()
 
 ReadDBSQL = write_db.WriteDB()
-df = ReadDBSQL.read_rnv_db()
+
+
+def make_rnv_table():
+    df = ReadDBSQL.read_rnv_db()
+    table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rnv',
+                         style_data_conditional=style_data_conditional,
+                         row_selectable='single',
+                         # filter_action="native"
+                         )
+    return table
+
 
 style_data_conditional = [
     {
@@ -31,11 +41,7 @@ style_data_conditional = [
 
 layout = html.Div([
     html.H4('Разрешения на ввод', className="text-center", style={'margin': '10px'}),
-    dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rnv',
-                         style_data_conditional=style_data_conditional,
-                         row_selectable='single',
-                         # filter_action="native"
-                         ),
+    make_rnv_table(),
     # dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, id='table_rns'),
 
     html.Div(children=[
