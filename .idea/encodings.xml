@@ -2,5 +2,6 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/base_nadzor/settings_nadzor/settings_db.txt" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/rnv_editor.txt" charset="windows-1251" />
   </component>
 </project>

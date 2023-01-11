@@ -47,45 +47,46 @@ def make_layout_razdels_rnv(objects_6=1, objects_7=1):
             obj_max = objects_6
         if idx + 1 == 7:
             obj_max = objects_7
-        for num_object in range(1, obj_max+1):
-            tmp_razdel = []
-            acc_tmp = []
+        # for num_object in range(1, obj_max+1):
+        tmp_razdel = []
+        acc_tmp = []
 
-            for label_x in vvod_text.rnv_labels:
-                if str(label_x).startswith(str(idx + 1)):
-                    if label_x in vvod_text.rnv_non_input_labels:
-                        tmp_razdel.append(
-                            dbc.Row([
-                                dbc.Col(label_x)
-                            ]
-                            ))
-                    else:
+        for label_x in vvod_text.rnv_labels:
+            num_razdel = str(razdel)[7]
+            if str(label_x).startswith(str(num_razdel)):
+                if label_x in vvod_text.rnv_non_input_labels:
+                    tmp_razdel.append(
+                        dbc.Row([
+                            dbc.Col(label_x)
+                        ]
+                        ))
+                else:
 
-                        ############# temp ##############
-                        # if 'X' in label_x:
-                        #     label_x = label_x.replace('X', '1')
+                    ############# temp ##############
+                    # if 'X' in label_x:
+                    #     label_x = label_x.replace('X', '1')
 
-                        if 'X' in label_x:
-                            label_x = label_x.replace('X', str(num_object))
+                    if 'X' in label_x:
+                        label_x = label_x.replace('X', str(razdel[-1]))
 
-                        tmp_razdel.append(
-                            dbc.Row([
-                                dbc.Label(label_x, width=10),
-                                dbc.Col(dbc.Input(id='rnv' + str(label_x.split()[0][:-1]).replace('.', '_'),
-                                                  ),
-                                        width=10),
-                            ], class_name="mb-3")
-                        )
+                    tmp_razdel.append(
+                        dbc.Row([
+                            dbc.Label(label_x, width=10),
+                            dbc.Col(dbc.Input(id='rnv' + str(label_x.split()[0][:-1]).replace('.', '_'),
+                                              ),
+                                    width=10),
+                        ], class_name="mb-3")
+                    )
 
-                        MemoryRazdelsObj.name_id_rnv.append('rnv' + str(label_x.split()[0][:-1]).replace('.', '_'))
+                    MemoryRazdelsObj.name_id_rnv.append('rnv' + str(label_x.split()[0][:-1]).replace('.', '_'))
 
-                        # print(str(label_x.split()[0][:-1]))
-                        # print(self.edit_dict.get(str(label_x.split()[0][:-1]), ''))
+                    # print(str(label_x.split()[0][:-1]))
+                    # print(self.edit_dict.get(str(label_x.split()[0][:-1]), ''))
+                    razdel_text = razdel
+                    if razdel in vvod_text.rnv_razdels_with_x:
                         razdel_text = razdel
-                        if razdel in vvod_text.rnv_razdels_with_x:
-                            razdel_text = razdel + f'-------- Объект №{num_object} --------'
-                        acc_tmp = dbc.AccordionItem(tmp_razdel, title=razdel_text)
-            rnv_div.append(acc_tmp)
+                    acc_tmp = dbc.AccordionItem(tmp_razdel, title=razdel_text)
+        rnv_div.append(acc_tmp)
         # MemoryRazdelsObj.name_id_rnv = list(set(MemoryRazdelsObj.name_id_rnv))
     return rnv_div
 
@@ -101,12 +102,12 @@ def make_layout_rnv():
                 html.Div([
                     dbc.Button("СБРОСИТЬ", color="danger", className="me-1", id='drop_all_rnv_new',
                                style={'margin': '10px'}),
-                    dbc.Button("Добавить объект в раздел 6", color="warning", className="me-1",
-                               id='button_rnv_add_obj_r6',
-                               style={'margin': '10px'}),
-                    dbc.Button("Добавить объект в раздел 7", color="warning", className="me-1",
-                               id='button_rnv_add_obj_r7',
-                               style={'margin': '10px'}),
+                    # dbc.Button("Добавить объект в раздел 6", color="warning", className="me-1",
+                    #            id='button_rnv_add_obj_r6',
+                    #            style={'margin': '10px'}),
+                    # dbc.Button("Добавить объект в раздел 7", color="warning", className="me-1",
+                    #            id='button_rnv_add_obj_r7',
+                    #            style={'margin': '10px'}),
                 ], style={'float': 'right'}),
             ]),
             html.Div([], id='rnv_null_update_div'),
@@ -134,24 +135,48 @@ def save_rnv(clicks):
         MemoryRazdelsObj.__init__()
         return '/new_rnv'
 
-@app.callback(
-    Output('rnv_razdels_accord', 'children'),
-    Input('button_rnv_add_obj_r6', 'n_clicks'),
-    Input('button_rnv_add_obj_r7', 'n_clicks'),
-    prevent_initial_call=True, )
-def add_r6(clicks_r6, clicks_r7):
-    if clicks_r6 is None:
-        if clicks_r7 is None:
-            return ''
-    else:
-        MemoryRazdelsObj.name_id_rnv = []
-        if clicks_r6 != MemoryRazdelsObj.click_r6:
-            MemoryRazdelsObj.click_r6 = clicks_r6
-            return make_layout_razdels_rnv(objects_6=MemoryRazdelsObj.col_r6 + 1, objects_7=MemoryRazdelsObj.col_r7)
-        elif clicks_r7 != MemoryRazdelsObj.click_r7:
-            MemoryRazdelsObj.click_r7 = clicks_r7
-            return make_layout_razdels_rnv(objects_6=MemoryRazdelsObj.col_r6, objects_7=MemoryRazdelsObj.col_r7 + 1)
+# @app.callback(
+#     Output('rnv_razdels_accord', 'children'),
+#     Input('button_rnv_add_obj_r6', 'n_clicks'),
+#     Input('button_rnv_add_obj_r7', 'n_clicks'),
+#     prevent_initial_call=True, )
+# def add_r6(clicks_r6, clicks_r7):
+#     if clicks_r6 is None:
+#         if clicks_r7 is None:
+#             return ''
+#     else:
+#         MemoryRazdelsObj.name_id_rnv = []
+#         if clicks_r6 != MemoryRazdelsObj.click_r6:
+#             MemoryRazdelsObj.click_r6 = clicks_r6
+#             return make_layout_razdels_rnv(objects_6=MemoryRazdelsObj.col_r6 + 1, objects_7=MemoryRazdelsObj.col_r7)
+#         elif clicks_r7 != MemoryRazdelsObj.click_r7:
+#             MemoryRazdelsObj.click_r7 = clicks_r7
+#             return make_layout_razdels_rnv(objects_6=MemoryRazdelsObj.col_r6, objects_7=MemoryRazdelsObj.col_r7 + 1)
 
+
+# Процедура чтоб перерисовать таблицу с новым разр
+ReadDBSQL = write_db.WriteDB()
+
+style_data_conditional = [
+    {
+        "if": {"state": "active"},
+        "backgroundColor": "rgba(150, 180, 225, 0.2)",
+        "border": "1px solid blue",
+    },
+    {
+        "if": {"state": "selected"},
+        "backgroundColor": "rgba(0, 116, 217, .03)",
+        "border": "1px solid blue",
+    },
+]
+def make_rnv_table():
+    df = ReadDBSQL.read_rnv_db()
+    table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rnv',
+                         style_data_conditional=style_data_conditional,
+                         row_selectable='single',
+                         # filter_action="native"
+                         )
+    return table
 
 @app.callback(
     Output('rnv_null_save_div', 'children'),

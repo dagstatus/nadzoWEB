@@ -87,6 +87,10 @@ class WriteDB:
 
         return df
 
+    def read_rnv_by_uid(self, uid_read):
+        df = pd.read_sql(f"select * from RNV where uid='{uid_read}'", con=self.engine)
+        return df
+
     def add_rsn_to_db(self, dict_to_add: dict):
         print('try write')
         df = pd.read_pickle('base_nadzor/read_db/bd_test.pcl')
