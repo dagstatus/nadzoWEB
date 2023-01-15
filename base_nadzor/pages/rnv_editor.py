@@ -32,30 +32,40 @@ style_data_conditional = [
 def read_rnv(uid):
     df = ReadDBSQL.read_rnv_by_uid(uid)
     df = df.rename(index={0: 'РНВ'})
-
     df = df.T
-    df = df.reset_index()
+    df = df.drop(['uid', 'date_write_to_db', 'show_flag'])
 
-    table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rnv_editor',
+    df_labels = pd.DataFrame(index=vvod_text.rnv_labels_names, data={'Name': vvod_text.rnv_labels_4_editor})
+
+    df = pd.merge(left=df_labels, left_index=True, right=df, right_index=True)
+
+    table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns],
+                                 id='table_rnv_editor',
                                  style_data_conditional=style_data_conditional,
                                  editable=True,
+                                 style_data={'whiteSpace': 'normal', 'height': 'auto'},
+                                 style_cell={'maxWidth': '400px', 'minWidth': '400px'},
                                  # filter_action="native"
                                  )
     return table
 
 
 layout = html.Div([
+    dbc.Button("Сохранить изменения", color="success", className="me-1", id='rnv_edit_save_btn',
+               style={'float': 'auto', 'margin': '20px'}, href="/rnv"),
     html.H4('Редактирование разрешения на ввод', className="text-center", style={'margin': '20px'}),
-    html.Div(id='rnv_editor_div_table', style={'width': '500px', 'margin': 'auto'}),
+    html.Div(id='rnv_editor_div_table', style={'width': '800px', 'margin': 'auto'},
+             children=[dash_table.DataTable(id='table_rnv_editor')]),
     html.Div(id='editing-prune-data-output'),
-    dbc.Button(id='invisible_button', style={'display': 'none'})
+    dbc.Button(id='invisible_button', style={'display': 'none'}),
+    html.Div(id='editor_invise_div1')
 ])
 
 
 @app.callback(
-              Output('rnv_editor_div_table', 'children'),
-              Input('invisible_button', 'n_clicks'))
-def your_function(n_clicks):
+    Output('rnv_editor_div_table', 'children'),
+    Input('invisible_button', 'n_clicks'))
+def update_on_load_editor(n_clicks):
     table = ''
     try:
         with open('rnv_editor.txt', 'rb') as f:
@@ -68,3 +78,20 @@ def your_function(n_clicks):
         print(ex)
 
     return table
+
+
+@app.callback(
+    Output('editor_invise_div1', 'children'),
+    Input('rnv_edit_save_btn', 'n_clicks'),
+    State('table_rnv_editor', 'data'))
+def save_edit_rnv(n_clicks, data_in):
+    if n_clicks is None:
+        return ''
+    else:
+        print(data_in)
+        df_to_save = pd.DataFrame(index=vvod_text.rnv_labels_names, data=data_in)
+        df_to_save = df_to_save.T.drop('Name')
+
+        ReadDBSQL.add_rnv_to_sql(df_to_save.to_dict('records')[0])
+
+

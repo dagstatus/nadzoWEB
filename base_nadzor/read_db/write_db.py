@@ -21,7 +21,15 @@ class WriteDB:
             result = conn.execute(sql_query)
             result.close()
 
+    def del_rnv(self, dict_delete_row: dict):
+        uid = dict_delete_row.get('uid', None)
+        if uid:
+            # print(uid)
 
+            sql_query = f"""DELETE FROM RNV WHERE uid = '{uid}'"""
+            conn = self.engine.connect(close_with_result=True)
+            result = conn.execute(sql_query)
+            result.close()
 
 
 
@@ -44,7 +52,10 @@ class WriteDB:
         dict_to_add['uid'] = str(uuid.uuid4())
         dict_to_add['date_write_to_db'] = datetime.datetime.now()
         dict_to_add['show_flag'] = 1
-        dict_to_add['version'] = 1
+
+        vers_rnv = dict_to_add.get('version', 0)
+
+        dict_to_add['version'] = vers_rnv + 1
         new_df = pd.DataFrame({key: [value] for key, value in dict_to_add.items()})
         try:
             new_df.to_sql('RNV', con=self.engine, if_exists='append', index=False)

@@ -351,14 +351,14 @@ class CreatePdfClass:
 
         # self.pdf.line(self.pdf.l_margin, podpis_y, 200, podpis_y)
 
-        self.pdf.multi_cell(w_2_from_5, cell_h * 5, 'Врио начальника Управления', border=1, align='C')
+        self.pdf.multi_cell(w_2_from_5, cell_h * 5, owner_doljnost, border=1, align='C')
 
         self.pdf.x = offset
         self.pdf.y = podpis_y
         self.pdf.multi_cell(w_1_from_5, cell_h * 5, '', border=1)
         self.pdf.x = offset + w_1_from_5
         self.pdf.y = podpis_y
-        self.pdf.multi_cell(w_1_from_5, cell_h * 5, 'Т.А-М.Галбацов', border=1, align='C')
+        self.pdf.multi_cell(w_1_from_5, cell_h * 5, owner_podpis_fio, border=1, align='C')
 
         self.pdf.set_font('PTSerif', '', 10)
         podpis_y = self.pdf.y
