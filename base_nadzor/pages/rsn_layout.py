@@ -18,8 +18,8 @@ ReadDBSQL = write_db.WriteDB()
 
 def make_rsn_table():
     df = ReadDBSQL.read_rns_db()
-    # df = df.rename(columns=vvod_text.labels_dict)
-    table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rns',
+    df = df.rename(columns=razr_text.rsn_labels_dict)
+    table = dash_table.DataTable(df.to_dict('records'), [{"name": i, "id": i} for i in df.columns], id='table_rsn',
                                  style_data_conditional=style_data_conditional,
                                  row_selectable='single',
                                  style_header={'whiteSpace': 'normal', 'height': 'auto',
@@ -64,7 +64,7 @@ layout = html.Div([
         dbc.Button("Изменить", color="success", className="me-1", id='edit_rsn_button', href='/rsn_editor'),
         dbc.Button("Загрузить из базы", color="warning", className="me-1", id='update_table_rsn_btn',
                    style={'float': 'center'}),
-        dbc.Button("Удалить", color="danger", className="me-1", id='delete_rnv_btn', href="/rsn",
+        dbc.Button("Удалить", color="danger", className="me-1", id='delete_rsn_btn', href="/rns",
                    style={'float': 'right'})
     ],
         style={'width': '100%', 'display': 'inline-block', 'margin': '20px'}),
@@ -92,7 +92,7 @@ layout = html.Div([
 
 
 @app.callback(
-    Output('rsn_layout_table_update_div', 'children'),
+    Output('rns_layout_table_update_div', 'children'),
     Input('update_table_rsn_btn', 'n_clicks'),
     # prevent_initial_call=True
 )
@@ -146,7 +146,7 @@ def opne_editor(clicks, rows, id_row):
     if clicks is None:
         return ''
     else:
-        ReadDBSQL.del_rnv(rows[id_row[0]])
+        ReadDBSQL.del_rsn(rows[id_row[0]])
         return ''
 
 @app.callback(

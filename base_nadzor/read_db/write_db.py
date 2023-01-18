@@ -10,7 +10,6 @@ class WriteDB:
         # self.con = sqlite3.connect('base_nadzor/read_db/NADZO_DB.db')
         self.engine = sqlalchemy.create_engine('sqlite:///base_nadzor/read_db/NADZO_DB.db')
 
-
     def del_rsn(self, dict_delete_row: dict):
         uid = dict_delete_row.get('uid', None)
         if uid:
@@ -31,8 +30,6 @@ class WriteDB:
             result = conn.execute(sql_query)
             result.close()
 
-
-
     def add_rsn_to_sql(self, dict_to_add: dict):
         dict_to_add['uid'] = str(uuid.uuid4())
         dict_to_add['date_write_to_db'] = datetime.datetime.now()
@@ -42,11 +39,9 @@ class WriteDB:
         try:
             new_df.to_sql('RSN', con=self.engine, if_exists='append', index=False)
         except:
-            df = pd.read_sql_query('select * from RSN', con=self.con)
+            df = pd.read_sql_query('select * from RSN', con=self.engine)
             df_2 = pd.concat([df, new_df])
             df_2.to_sql(name='RSN', con=self.engine, if_exists='replace', index=False)
-
-
 
     def add_rnv_to_sql(self, dict_to_add: dict):
         dict_to_add['uid'] = str(uuid.uuid4())
@@ -63,7 +58,6 @@ class WriteDB:
             df = pd.read_sql_query('select * from RNV', con=self.engine)
             df_2 = pd.concat([df, new_df])
             df_2.to_sql(name='RNV', con=self.engine, if_exists='replace', index=False)
-
 
     def edit_rns_sql(self, dict_new: dict, uid_father='', version=1):
         uid_father = uid_father
@@ -86,10 +80,8 @@ class WriteDB:
             df_2 = pd.concat([df, new_df])
             df_2.to_sql(name='RSN', con=self.con, if_exists='replace', index=False)
 
-
-
     def read_rns_db(self):
-        df = pd.read_sql('select * from RSN order by "1.2"', con=self.engine)
+        df = pd.read_sql('select * from RSN', con=self.engine)
 
         return df
 
@@ -100,6 +92,10 @@ class WriteDB:
 
     def read_rnv_by_uid(self, uid_read):
         df = pd.read_sql(f"select * from RNV where uid='{uid_read}'", con=self.engine)
+        return df
+
+    def read_rsn_by_uid(self, uid_read):
+        df = pd.read_sql(f"select * from RSN where uid='{uid_read}'", con=self.engine)
         return df
 
     def add_rsn_to_db(self, dict_to_add: dict):
